@@ -2,9 +2,12 @@ import styles from "./page.module.css";
 import { SurveyResponse } from "./types/SurveyResponse";
 
 async function getSurveyResponses(): Promise<SurveyResponse[]> {
-  const res = await fetch("http://localhost:3000/api/survey", {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/survey-response`,
+    {
+      cache: "no-store",
+    }
+  );
 
   return res.json();
 }
