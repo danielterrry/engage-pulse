@@ -1,0 +1,49 @@
+model Survey {
+  id          String     @id @default(uuid())
+  description String     @db.VarChar(500)
+  surveyType  SurveyType @map("survey_type")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  slug        String     @unique
+  name        String
+
+  responses SurveyResponse[]
+
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id           String       @id @default(uuid())
+  questionType QuestionType @map("question_type")
+  question     String
+
+  answers SurveyAnswer[]
+
+  @@map("survey_questions")
+}
+
+model SurveyAnswer {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  responseId String   @map("response_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  answer     String
+
+  surveyQuestion SurveyQuestion @relation(fields: [questionId], references: [id])
+  surveyResponse SurveyResponse @relation(fields: [responseId], references: [id])
+
+  @@map("survey_answers")
+}
+
+model SurveyResponse {
+  id           String       @id @default(uuid())
+  userId       String       @map("user_id")
+  surveyId     String       @map("survey_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  surveyStatus SurveyStatus @default(PENDING) @map("survey_status")
+  slug         String       @unique
+
+  survey  Survey         @relation(fields: [surveyId], references: [id])
+  answers SurveyAnswer[]
+
+  @@map("survey_responses")
+}

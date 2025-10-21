@@ -1,0 +1,23 @@
+enum QuestionType {
+  RATING          @map("rating")
+  TEXT            @map("text")
+  MULTIPLE_CHOICE @map("multiple_choice")
+}
+
+enum SurveyType {
+  ENGAGE   @map("engage")
+  MANAGER  @map("manager")
+  CUSTOMER @map("customer")
+  OTHER    @map("other")
+}
+
+enum SurveyStatus {
+  PENDING   @map("pending")
+  SUBMITTED @map("submitted")
+  COMPLETED @map("completed")
+}
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+}
