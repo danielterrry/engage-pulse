@@ -22,9 +22,9 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, surveyId, surveyStatus } = body;
+    const { userId, surveyId } = body;
 
-    if (!userId || !surveyId || !surveyStatus) {
+    if (!userId || !surveyId) {
       return NextResponse.json(
         { error: 'missing required fields' },
         { status: 400 },
@@ -34,12 +34,16 @@ export async function POST(req: Request) {
       data: {
         userId,
         surveyId,
-        surveyStatus,
-        slug: 'a',
+        slug: 'zyz',
       },
     });
 
-    return NextResponse.json(createdSurveyResponse, { status: 201 });
+    return NextResponse.json(
+      {
+        id: createdSurveyResponse.id,
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'failed' }, { status: 500 });

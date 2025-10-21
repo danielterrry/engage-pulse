@@ -9,6 +9,7 @@ import {
   SurveyResponseInput,
 } from '../requests/surveys';
 import SurveyResponsesTable from '../components/ui/survey-responses-table';
+import { getUsers } from '../requests/users';
 // import { redirect } from 'next/navigation'
 
 // const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
@@ -45,6 +46,7 @@ export default async function Home({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const allSurveys = await getSurveys();
+  const allUsers = await getUsers();
   const slug = ((await searchParams).survey as string) || allSurveys[0].slug;
   const survey = await getSurveyBySlug(slug);
 
@@ -83,18 +85,21 @@ export default async function Home({
         <SurveySelect data={allSurveys} />
         <SurveyResponsesTable data={survey} />
         <form action={handleSurveyResponseFormAction}>
-          <input
-            name="userId"
-            defaultValue="23320752-dc62-466e-8d45-bc92054b9f05"
-            placeholder="User"
-            required
-          />
-          <input
-            name="surveyId"
-            defaultValue={survey.name}
-            placeholder="Survey"
-            required
-          />
+          <select name="userId" required>
+            {allUsers?.map((user) => (
+              <option
+                value={user.id}
+                key={user.id}
+              >{`${user.firstName} ${user.lastName}`}</option>
+            ))}
+          </select>
+          <select name="surveyId" required>
+            {allSurveys.map((survey) => (
+              <option value={survey.id} key={survey.id}>
+                {survey.name}
+              </option>
+            ))}
+          </select>
           <button type="submit">create survey response</button>
         </form>
       </main>
