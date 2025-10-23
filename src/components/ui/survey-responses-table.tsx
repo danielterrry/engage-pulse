@@ -18,7 +18,7 @@ export default function SurveyResponsesTable({ data }: { data: Survey }) {
       >
         <thead>
           <tr>
-            <th>userId</th>
+            <th>employeeId</th>
             {/* <th>createdAt</th> */}
             <th>name</th>
             <th>status</th>
@@ -29,7 +29,7 @@ export default function SurveyResponsesTable({ data }: { data: Survey }) {
           {data.responses.map((response: SurveyResponse) => (
             <tr key={response.id}>
               <td style={{ border: '1px solid #000', padding: '8px' }}>
-                {response.userId}
+                {response.employeeId}
               </td>
               {/* <td>{new Date(r.createdAt).toLocaleString()}</td> */}
               <td style={{ border: '1px solid #000', padding: '8px' }}>

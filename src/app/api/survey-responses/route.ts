@@ -22,9 +22,9 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, surveyId } = body;
+    const { employeeId, surveyId } = body;
 
-    if (!userId || !surveyId) {
+    if (!employeeId || !surveyId) {
       return NextResponse.json(
         { error: 'missing required fields' },
         { status: 400 },
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
     const createdSurveyResponse = await prisma.surveyResponse.create({
       data: {
-        userId,
+        employeeId,
         surveyId,
         slug: 'zyz',
       },

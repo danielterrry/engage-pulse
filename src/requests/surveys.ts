@@ -8,7 +8,7 @@ export interface SurveyInput {
 }
 
 export interface SurveyResponseInput {
-  userId: string;
+  employeeId: string;
   surveyId: string;
 }
 

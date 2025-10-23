@@ -33,7 +33,7 @@ export async function handleSurveyResponseFormAction(
 ): Promise<void> {
   'use server';
   const payload: SurveyResponseInput = {
-    userId: formData.get('userId') as string,
+    employeeId: formData.get('employeeId') as string,
     surveyId: formData.get('surveyId') as string,
   };
 
@@ -85,7 +85,7 @@ export default async function Home({
         <SurveySelect data={allSurveys} />
         <SurveyResponsesTable data={survey} />
         <form action={handleSurveyResponseFormAction}>
-          <select name="userId" required>
+          <select name="employeeId" required>
             {allUsers?.map((user) => (
               <option
                 value={user.id}

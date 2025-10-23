@@ -36,7 +36,7 @@ model SurveyAnswer {
 
 model SurveyResponse {
   id           String       @id @default(uuid())
-  userId       String       @map("user_id")
+  employeeId   String       @map("employee_id")
   surveyId     String       @map("survey_id")
   createdAt    DateTime     @default(now()) @map("created_at")
   surveyStatus SurveyStatus @default(PENDING) @map("survey_status")
