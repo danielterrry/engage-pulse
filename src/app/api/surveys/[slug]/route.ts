@@ -17,13 +17,19 @@ export async function GET(
     });
 
     if (!survey) {
-      return NextResponse.json({ error: 'failed' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Failed to get Survey' },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(survey);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }

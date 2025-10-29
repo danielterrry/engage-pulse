@@ -1,6 +1,8 @@
 import 'server-only';
 import { Survey } from '@prisma/client';
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
 export interface SurveyInput {
   name: string;
   description: string;
@@ -12,86 +14,65 @@ export interface SurveyResponseInput {
   surveyId: string;
 }
 
-export async function getSurveys(): Promise<Survey[]> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/surveys`,
-    {
-      cache: 'no-store',
-    },
-  );
+export async function get<T>(endpoint: string): Promise<T | null> {
+  const response = await fetch(endpoint, {
+    cache: 'no-store',
+  });
 
-  if (!response.ok) {
-    console.error('failed');
+  if (response.status === 404) {
+    return null;
   }
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(`ERROR ${response.status}`);
+  }
+
+  return await response.json();
+}
+
+export async function post<T1, T2>(
+  endpoint: string,
+  payload: T1,
+  method: 'POST' | 'PUT' = 'POST',
+): Promise<T2> {
+  try {
+    const response = await fetch(endpoint, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`ERROR ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('ERROR', error);
+    throw error;
+  }
+}
+
+export async function getSurveys(): Promise<Survey[] | null> {
+  return get(`${API_BASE_URL}/api/surveys`);
 }
 
 export async function getSurveyBySlug(slug: string): Promise<Survey> {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/surveys/${slug}`,
-    {
-      cache: 'no-store',
-    },
-  );
-
-  if (!response.ok) {
-    console.error('failed');
-  }
-
-  return response.json();
+  return get(`${API_BASE_URL}/api/surveys/${slug}`);
 }
 
 export async function createSurvey(
   payload: SurveyInput,
-): Promise<{ name: string; id: string } | { status: number; error: string }> {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/surveys`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      },
-    );
-
-    const data = await response.json();
-    if (!response.ok) {
-      return { status: response.status, error: data.error || 'unknown' };
-    }
-
-    // { name: string, id: string }
-    return data;
-  } catch (error: any) {
-    return { status: 500, error: error?.message || 'unknown' };
-  }
+): Promise<{ id: string; name: string }> {
+  return post(`${API_BASE_URL}/api/surveys`, payload);
 }
 
 export async function createSurveyResponse(
   payload: SurveyResponseInput,
-  // todo
-): Promise<any> {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/survey-responses`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      },
-    );
-
-    const data = await response.json();
-    if (!response.ok) {
-      return { status: response.status, error: data.error || 'unknown' };
-    }
-
-    return data;
-  } catch (error: any) {
-    return { status: 500, error: error?.message || 'unknown' };
-  }
+): Promise<{
+  id: string;
+}> {
+  return post(`${API_BASE_URL}/api/survey-responses`, payload);
 }

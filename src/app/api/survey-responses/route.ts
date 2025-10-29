@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import slugify from 'slugify';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ export async function GET() {
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: 'failed to fetch survey responses' },
+      { error: 'Failed to get survey responses' },
       { status: 500 },
     );
   } finally {
@@ -26,27 +27,58 @@ export async function POST(req: Request) {
 
     if (!employeeId || !surveyId) {
       return NextResponse.json(
-        { error: 'missing required fields' },
+        { error: 'Missing required fields' },
         { status: 400 },
       );
     }
-    const createdSurveyResponse = await prisma.surveyResponse.create({
+
+    const employee = await prisma.employee.findUnique({
+      where: { id: employeeId },
+      include: {
+        // employee relationship with a user
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    if (!employee || !employee.user) {
+      throw new Error(`Employee ${employeeId} not found`);
+    }
+
+    const employeeName = `${employee.user.firstName} ${employee.user.lastName}`;
+    console.log('Employee name', employeeName);
+
+    const employeeResponses = await prisma.surveyResponse.count({
+      where: {
+        employeeId: employeeId,
+      },
+    });
+
+    const slug = `${employeeName} response ${employeeResponses + 1}`;
+    const created = await prisma.surveyResponse.create({
       data: {
         employeeId,
         surveyId,
-        slug: 'zyz',
+        slug: slugify(slug, { lower: true, strict: true }),
       },
     });
 
     return NextResponse.json(
       {
-        id: createdSurveyResponse.id,
+        id: created.id,
       },
       { status: 201 },
     );
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }

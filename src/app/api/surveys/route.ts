@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import slugify from 'slugify';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,10 @@ export async function GET() {
     return NextResponse.json(surveys, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to get surveys' },
+      { status: 500 },
+    );
   } finally {
     await prisma.$disconnect();
   }
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
         name,
         description,
         surveyType,
-        slug: 'd',
+        slug: slugify(name, { lower: true, strict: true }),
       },
     });
 

@@ -1,42 +1,41 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Survey } from '@prisma/client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-export default function SurveySelect({ data }: { data: Survey[] }) {
+export default function SurveySelect({ data }: { data: Survey[] | null }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [survey, setSurvey] = useState<Survey | null>(data?.[0] ?? null);
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams],
+  const param = searchParams.get('response');
+  const [survey, setSurvey] = useState<Survey | null>(
+    data?.find((s) => s.slug === param),
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    router.push(pathname + '?' + createQueryString('survey', e.target.value));
+    const slug = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
 
-    const id = e.target.value;
-    setSurvey(data?.find((u) => u.slug === id) || null);
+    if (slug) {
+      params.set('response', slug);
+    } else {
+      params.delete('response');
+    }
+
+    router.replace(`${pathname}?${params.toString()}`);
+    setSurvey(data?.find((s) => s.slug === slug) ?? null);
   };
 
   return (
     <>
       <div style={{ display: 'flex' }}>
         <h2>{survey ? survey.name : 'nothing selected'}</h2>
-        <select value={survey?.slug} onChange={handleChange}>
+        <select name="surveyId" required onChange={handleChange}>
           {data?.map((survey: Survey) => (
-            <option
-              value={survey.slug}
-              key={survey.id}
-            >{`${survey.slug}`}</option>
+            <option value={survey.slug} key={survey.id}>
+              {survey.name}
+            </option>
           ))}
         </select>
       </div>

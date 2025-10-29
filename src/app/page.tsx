@@ -2,18 +2,12 @@ import styles from './page.module.css';
 import SurveySelect from '../components/ui/survey-select';
 import {
   createSurvey,
-  createSurveyResponse,
   getSurveyBySlug,
   getSurveys,
   SurveyInput,
-  SurveyResponseInput,
 } from '../requests/surveys';
 import SurveyResponsesTable from '../components/ui/survey-responses-table';
-import { getUsers } from '../requests/users';
-// import { redirect } from 'next/navigation'
-
-// const url = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000';
-// export const dynamic = 'force-dynamic';
+import { Survey } from '@prisma/client';
 
 export async function handleSurveyFormAction(
   formData: FormData,
@@ -28,27 +22,15 @@ export async function handleSurveyFormAction(
   await createSurvey(payload);
 }
 
-export async function handleSurveyResponseFormAction(
-  formData: FormData,
-): Promise<void> {
-  'use server';
-  const payload: SurveyResponseInput = {
-    employeeId: formData.get('employeeId') as string,
-    surveyId: formData.get('surveyId') as string,
-  };
-
-  await createSurveyResponse(payload);
-}
-
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const params = await searchParams;
   const allSurveys = await getSurveys();
-  const allUsers = await getUsers();
-  const slug = ((await searchParams).survey as string) || allSurveys[0].slug;
-  const survey = await getSurveyBySlug(slug);
+
+  const survey = await getSurveyBySlug(params.response as string);
 
   return (
     <div className={styles.page}>
@@ -84,24 +66,6 @@ export default async function Home({
         </form>
         <SurveySelect data={allSurveys} />
         <SurveyResponsesTable data={survey} />
-        <form action={handleSurveyResponseFormAction}>
-          <select name="employeeId" required>
-            {allUsers?.map((user) => (
-              <option
-                value={user.id}
-                key={user.id}
-              >{`${user.firstName} ${user.lastName}`}</option>
-            ))}
-          </select>
-          <select name="surveyId" required>
-            {allSurveys.map((survey) => (
-              <option value={survey.id} key={survey.id}>
-                {survey.name}
-              </option>
-            ))}
-          </select>
-          <button type="submit">create survey response</button>
-        </form>
       </main>
       <footer className={styles.footer}>footer</footer>
     </div>

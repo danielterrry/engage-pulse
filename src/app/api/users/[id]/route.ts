@@ -3,25 +3,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  _: Request,
-  { params }: { params: { slug: string } },
-) {
-  const { slug } = await params;
+export async function GET(_: Request, { params }: { params: { id: string } }) {
+  const { id } = await params;
 
   try {
-    const survey = await prisma.surveyResponse.findMany({
-      where: { slug },
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: { employees: true },
     });
 
-    if (!survey) {
+    if (!user) {
       return NextResponse.json(
-        { error: 'Failed to get survey' },
+        { error: 'Failed to get user' },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(survey);
+    return NextResponse.json(user);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

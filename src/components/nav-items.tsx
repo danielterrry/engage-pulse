@@ -8,4 +8,5 @@ type NavItem<T extends string = string> = {
 export const navItems: NavItem<Route>[] = [
   { href: '/', label: 'Home' },
   { href: '/profile', label: 'Profile' },
+  { href: '/users', label: 'Users' },
 ];
