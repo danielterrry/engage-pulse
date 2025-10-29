@@ -7,7 +7,6 @@ import {
   SurveyInput,
 } from '../requests/surveys';
 import SurveyResponsesTable from '../components/ui/survey-responses-table';
-import { Survey } from '@prisma/client';
 
 export async function handleSurveyFormAction(
   formData: FormData,

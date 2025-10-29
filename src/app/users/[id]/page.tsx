@@ -25,7 +25,7 @@ export default async function User({ params }: { params: { id: string } }) {
   const allSurveys = await getSurveys();
   const updateEmployeeWithId = handleSurveyResponseFormAction.bind(
     null,
-    user.employees[0].id,
+    user?.employees[0]?.id,
   );
 
   return (
@@ -41,27 +41,31 @@ export default async function User({ params }: { params: { id: string } }) {
       <div style={{ border: '1px solid #000', padding: '8px' }}>
         {user.role}
       </div>
-      <>
-        <h2>Employees</h2>
-        {user.employees.map((employee: Employee) => (
-          <div key={employee.id}>
-            <div>{employee.id}</div>
-            <div>{new Date(employee.createdAt).toLocaleDateString()}</div>
-          </div>
-        ))}
-      </>
-      <br />
-      <form action={updateEmployeeWithId}>
-        <select name="surveyId" required>
-          {allSurveys?.map((survey: Survey) => (
-            <option value={survey.id} key={survey.id}>
-              {survey.name}
-            </option>
+
+      {user?.employees.length > 0 ? (
+        <>
+          <h2>Employees</h2>
+          {user.employees.map((employee: Employee) => (
+            <div key={employee.id}>
+              <div>{employee.id}</div>
+              <div>{new Date(employee.createdAt).toLocaleDateString()}</div>
+            </div>
           ))}
-        </select>
-        <button type="submit">create survey response</button>
-      </form>
-      <br />
+          <br />
+          <form action={updateEmployeeWithId}>
+            <select name="surveyId" required>
+              {allSurveys?.map((survey: Survey) => (
+                <option value={survey.id} key={survey.id}>
+                  {survey.name}
+                </option>
+              ))}
+            </select>
+            <button type="submit">create survey response</button>
+          </form>
+        </>
+      ) : (
+        <p>No employees found</p>
+      )}
     </>
   );
 }
